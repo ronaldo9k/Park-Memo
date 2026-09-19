@@ -36,10 +36,31 @@
       background-attachment:fixed;
       background-color:#05070b;
     }
-    /* ⭐ 수정 ① : 딤 처리를 .55 → .25 로 가볍게 해서 배경 이미지가 최대한 보이게
-       (이미지가 없을 때도 최소한의 어둡게 처리는 유지) */
+    /* ======================================================================
+       🎨 Ver 3.0 투명도 조절 가이드 (나중에 혼자 고칠 때 — 여기만 바꾸면 됩니다)
+       ======================================================================
+       ① 배경 딤(화면 전체를 살짝 덮는 어두운 막) 세기 :
+          → 아래 body::before 의 background 에서 마지막 숫자만 조절
+            rgba(5,7,11, .12)  ← .12 = 지금 값(거의 안 덮음, 배경 가장 잘 보임)
+            .25 = 이전 버전 / .55 = 예전(많이 어둡던) 값 / 0 으로 하면 막 없음
+
+       ② 첫 화면 카드 투명도 :
+          → #inputScreen 의 background 에서 마지막 숫자만 조절
+            rgba(8,12,20, .22) ← .22 = 지금 값 / .42 = 이전 버전 / 1 = 불투명
+          → 카드 뒤를 흐리게 하는 블러 정도 :
+            -webkit-backdrop-filter / backdrop-filter 의 blur(12px) 숫자
+            (숫자가 클수록 카드 뒤 배경이 더 흐려짐, 0 이면 블러 없음)
+
+       ③ 수입/지출 버튼 배경 투명도 :
+          → .mode-btn 의 background rgba(255,255,255, .06)
+
+       ④ "가계부 정보 입력하기" 버튼 배경 투명도 :
+          → .primary 의 background:linear-gradient(100deg,
+            rgba(231,198,95,.9), rgba(201,162,39,.85))
+            에서 각 rgba 의 마지막 숫자(불투명도). 1 이면 완전 불투명.
+       ====================================================================== */
     body::before{
-      content:"";position:fixed;inset:0;background:rgba(5,7,11,.25);
+      content:"";position:fixed;inset:0;background:rgba(5,7,11,.12);
       z-index:0;pointer-events:none;
     }
 
@@ -78,12 +99,12 @@
        STEP 2 진입 시 JS 가 52px 로 올려서 고정바 밑으로 내용이 안 가려지게 함 */
     .top-spacer{height:0;flex:0 0 auto;}
 
-    .card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:12px;
-      box-shadow:0 10px 30px rgba(0,0,0,.35);}
+    .card{background:var(--card);border-radius:16px;padding:18px 18px 14px;margin-bottom:0;
+      box-shadow:0 10px 30px rgba(0,0,0,.35);}   /* ⭐ Ver 3.0 : 카드 하단 여백/간격 축소 */
     .screen{display:block;}
     .step-hidden{display:none!important;}
 
-    .brand{text-align:center;margin:6px 0 14px;}
+    .brand{text-align:center;margin:2px 0 10px;}   /* ⭐ Ver 3.0 : 위아래 여백 축소 */
     .brand .brand-title{font-size:19px;font-weight:800;letter-spacing:-.4px;color:#fff;}
     .brand .brand-sub{font-size:12px;color:#9ca3af;margin-top:4px;}
     .fenomeno-status{font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:700;}
@@ -96,12 +117,13 @@
           - kyungwoo.png 배경이 카드에 비치면서도, 글자는 그림자로 가독성 확보
        ====================================================================== */
     #inputScreen{
-      background:rgba(8,12,20,.42);
-      -webkit-backdrop-filter:blur(14px) saturate(1.25);
-      backdrop-filter:blur(14px) saturate(1.25);
+      background:rgba(8,12,20,.22);   /* ← 카드 투명도 : 이 숫자만 바꾸면 됨 */
+      -webkit-backdrop-filter:blur(12px) saturate(1.2);
+      backdrop-filter:blur(12px) saturate(1.2);
       border:1px solid rgba(255,255,255,.35);
       box-shadow:0 18px 44px rgba(0,0,0,.45);
       color:#f9fafb;
+      padding-bottom:12px;   /* ⭐ Ver 3.0 : 카드 아래쪽 여백 최소화 */
     }
     /* 골드 그라데이션 타이틀 (흰색 대신 고급스러운 색감) */
     #inputScreen .brand-title{
@@ -120,7 +142,10 @@
       color:rgba(255,255,255,.92);
       text-shadow:0 1px 4px rgba(0,0,0,.6);
     }
-    #inputScreen .divider{background:rgba(255,255,255,.28);}
+    /* ⭐ Ver 3.0 : 첫 화면 카드 아래 불필요한 공간 제거
+       (구분선을 아예 숨김 — 카드가 "입력하기" 버튼에서 바로 끝나서
+        배경 이미지가 넓게 보입니다) */
+    #inputScreen .divider{display:none;}
     #inputScreen .row-note{
       color:rgba(255,255,255,.88);
       text-shadow:0 1px 3px rgba(0,0,0,.55);
@@ -136,7 +161,7 @@
           아래 grid-template-columns 를 "1fr" 로만 바꾸면 됨) */
     .mode-btn{
       border:2px solid rgba(255,255,255,.5);
-      background:rgba(255,255,255,.10);
+      background:rgba(255,255,255,.06);   /* ⭐ Ver 3.0 : 버튼도 더 투명하게 */
       -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
       border-radius:14px;padding:16px 8px;
       font-size:16px;font-weight:800;color:#fff;cursor:pointer;transition:.15s;
@@ -150,7 +175,7 @@
     /* ⭐ 수정 ① : "가계부 정보 입력하기" 버튼 — 골드 그라데이션으로 시선 강화 */
     .primary{
       width:100%;border:1px solid rgba(255,255,255,.55);border-radius:14px;
-      background:linear-gradient(100deg,#e7c65f,#c9a227);color:#191203;
+      background:linear-gradient(100deg,rgba(231,198,95,.9),rgba(201,162,39,.85));color:#191203;
       padding:16px;font-size:16px;font-weight:900;letter-spacing:-.2px;cursor:pointer;
       box-shadow:0 10px 26px rgba(0,0,0,.4);
     }
@@ -207,6 +232,38 @@
     .row-note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.55;}
     .divider{height:1px;background:var(--line);margin:18px 0;}
     .amount-display{font-size:13px;color:var(--green);font-weight:800;margin-top:6px;}
+
+    /* ======================================================================
+       ⭐ Ver 3.0 STEP 3 : 등록 상태 팝업 카드
+          - 배경 이미지가 최대한 보이도록 반투명 글래스 처리
+          - 화면 상단에 작고 컴팩트하게 배치
+          - 투명도를 바꾸고 싶으면 .step3-card 의 background rgba 마지막 숫자만 조절
+            (.35 = 지금 값, 작을수록 더 투명)
+       ====================================================================== */
+    .step3-card{
+      background:rgba(8,12,20,.35);
+      -webkit-backdrop-filter:blur(10px) saturate(1.2);
+      backdrop-filter:blur(10px) saturate(1.2);
+      border:1px solid rgba(255,255,255,.3);
+      box-shadow:0 18px 44px rgba(0,0,0,.45);
+      color:#f9fafb;
+    }
+    .card.screen.step3-card{max-width:340px;margin:8px auto 0;padding:18px 16px 16px;}
+    .step3-title{
+      font-size:17px;font-weight:900;letter-spacing:-.3px;
+      text-align:center;margin:0 0 12px;
+      text-shadow:0 2px 6px rgba(0,0,0,.6);
+    }
+    .step3-card .ok,.step3-card .error,.step3-card .listening{
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.18);
+      color:#f9fafb;
+      text-shadow:0 1px 3px rgba(0,0,0,.5);
+      text-align:left;
+    }
+    .step3-card .ok a{color:#f9ecc0;}
+    .step3-card .listening{color:#f9ecc0;text-align:center;}
+    .step3-new-btn{margin-top:12px;}
   </style>
 </head>
 
@@ -315,6 +372,16 @@
 
   </div>
 
+  <!-- ======================================================================
+       ⭐ Ver 3.0 STEP 3 : 등록 상태 팝업 (배경 위 반투명 컴팩트 카드)
+       ====================================================================== -->
+  <div id="step3Screen" class="card screen step-hidden step3-card">
+
+    <div id="step3Title" class="step3-title">📝 노션에 등록 중...</div>
+    <div id="step3Body"></div>
+
+  </div>
+
 </div>
 
 
@@ -324,7 +391,7 @@
 // ============================================================================
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbzFMlZvbWUNH1zkP3KbbSeBABbyyTRMIPWVFbgbwtVKj-z6fxRDTJ4lAHoyfLUkNm5a/exec";
+  "https://script.google.com/macros/s/AKfycbwkpTXrgO9eRvZGXtwbizlSL-3tXxp2XbudLA3c0ZZdR7SdXg7Kxm9xE6m7Xwz2qDt9/exec";
 
 // ⭐ GAS 서버 일시 응답불가 상태 (원본과 동일)
 let GAS_DOWN_UNTIL = 0;
@@ -598,6 +665,7 @@ function applyOptions(data) {
 function showStep2() {
   $("inputScreen").classList.add("step-hidden");
   $("resultCard").classList.remove("step-hidden");
+  $("step2Result").innerHTML = "";   // ⭐ Ver 3.0 : STEP 2 들어올 때 이전 안내/에러 메시지 깨끗이 정리
   $("topFixedBar").style.display = "flex";
   $("topSpacer").style.height = "52px";   // ⭐ 고정바 높이만큼 여백 복원
   $("step2Title").textContent = "2. " + currentKind + " 정보 입력";
@@ -644,6 +712,7 @@ async function loadPreviewOptions() {
     writeOptionsCache(data);
 
     setStatusBar("ready", "박희수님 정보 입력 가능!");
+    $("step2Result").innerHTML = "";   // ⭐ Ver 3.0 : 목록 로딩 성공 시 이전 오류 메시지 정리
 
     return data;
 
@@ -721,54 +790,89 @@ async function refreshMasterDataFromNotion() {
 // 🎤 11. 금액 음성인식 (한국어 숫자 → 숫자 변환)
 // ============================================================================
 
-// "육천원" / "6천원" / "1만2천원" 등 → 12000
+// "육천원" / "6천원" / "1만2천원" / "이만 오천원" → 25000
+// ⭐ Ver 3.0 수정 : 한글 숫자와 아라비아 숫자가 섞여도(예: "이만 5000원")
+//    만/천/백/십 자리값을 한 글자씩 순서대로 계산해서 항상 올바른 금액이 나오도록
+//    파서를 통합·재작성했습니다.
+//    (기존에는 숫자가 먼저 매칭되면 앞의 "이만" 을 무시하고 5000 만 반환하는
+//     오류가 있었어요 → "이만 오천원", "이만 5000원" 모두 25000 으로 수정)
 function koreanAmountToNumber(text) {
 
   let s = String(text || "")
     .replace(/\s+/g, "")
     .replace(/원|₩|\$|,/g, "");
 
-  // 아라비아 숫자 + 만/천/백 단위 (예: 1만2천, 6천)
-  const unitMap = { "만": 10000, "천": 1000, "백": 100, "십": 10 };
-  let total = 0;
-  let matched = false;
-  const re = /(\d+(?:\.\d+)?)(만|천|백|십)?/g;
-  let m;
-
-  while ((m = re.exec(s)) !== null) {
-    matched = true;
-    const num = Number(m[1]);
-    const unit = m[2] ? unitMap[m[2]] : 1;
-    total += num * unit;
-  }
-
-  if (matched && total > 0) return Math.round(total);
-
-  // 순수 한글 숫자 (예: 육천, 삼만오천)
   const kor = { "영":0,"공":0,"일":1,"이":2,"삼":3,"사":4,"오":5,"육":6,"칠":7,"팔":8,"구":9 };
   const big = { "십":10, "백":100, "천":1000, "만":10000 };
-  let section = 0, current = 0, hangulFound = false;
 
-  for (let i = 0; i < s.length; i++) {
-    const ch = s[i];
-    if (kor[ch] !== undefined) {
-      current = kor[ch];
-      hangulFound = true;
-    } else if (big[ch] !== undefined) {
-      hangulFound = true;
-      const unit = big[ch];
-      if (unit === 10000) {
-        section = (section + (current || 1) * 10000);
-        current = 0;
-      } else {
-        section += (current || 1) * unit;
-        current = 0;
-      }
+  let total = 0;      // "만" 이 확정된 큰 자릿수 누적 (예: 이만 → 20000)
+  let section = 0;    // 현재 만 구간 안에서의 누적 (천/백/십)
+  let current = null; // 아직 단위가 붙지 않은 pending 숫자 (한글·아라비아 공통)
+  let numBuf = "";    // 아라비아 숫자 버퍼
+  let found = false;
+
+  // 아라비아 숫자 버퍼를 pending 숫자로 확정
+  function flushDigits() {
+    if (numBuf !== "") {
+      current = (current === null ? 0 : current) + Number(numBuf);
+      numBuf = "";
+      found = true;
     }
   }
-  const result = section + current;
 
-  if (hangulFound && result > 0) return result;
+  // pending 숫자를 현재 만 구간에 더함
+  function settleCurrent() {
+    if (current !== null) {
+      section += current;
+      current = null;
+    }
+  }
+
+  for (let i = 0; i < s.length; i++) {
+
+    const ch = s[i];
+
+    if (ch >= "0" && ch <= "9") {
+      numBuf += ch;
+      continue;
+    }
+
+    flushDigits();
+
+    if (kor[ch] !== undefined) {
+      // 한글 숫자 (이/오/육 ...) — pending 숫자로 쌓음
+      current = (current === null ? 0 : current) * 10 + kor[ch];
+      found = true;
+
+    } else if (big[ch] !== undefined) {
+      // 단위 (십/백/천/만)
+      found = true;
+      const unit = big[ch];
+
+      if (unit === 10000) {
+        // "만" 이 오면 지금까지의 값(천/백/십 포함)을 만 단위로 확정
+        const madeSection = section + (current === null ? 0 : current);
+        total += (madeSection === 0 ? 1 : madeSection) * 10000;
+        section = 0;
+        current = null;
+      } else {
+        section += (current === null ? 1 : current) * unit;
+        current = null;
+      }
+
+    } else {
+      // 그 외 문자 — pending 숫자 확정
+      settleCurrent();
+    }
+
+  }
+
+  flushDigits();
+  settleCurrent();
+
+  const result = total + section;
+
+  if (found && result > 0) return Math.round(result);
 
   const digits = s.replace(/[^0-9]/g, "");
   return digits ? Number(digits) : 0;
@@ -813,6 +917,7 @@ function startAmountRecognition() {
   recognition.onstart = function () {
     isRecording = true;
     $("amountMicButton").classList.add("rec");
+    $("step2Result").innerHTML = "";   // ⭐ Ver 3.0 : 녹음 시작 전 이전 상태 메시지 먼저 정리
     $("micHint").innerHTML = "🎤 듣고 있어요... 금액을 말해주세요.";
   };
 
@@ -875,6 +980,79 @@ function startAmountRecognition() {
 // ✅ 12. 최종 등록 (CONFIRM) — 여기서만 Notion 페이지 생성
 // ============================================================================
 
+// ⭐ Ver 3.0 : STEP 2 입력값 초기화 (등록 완료 후 다음 기록 준비)
+function resetStep2Inputs() {
+  $("amountInput").value = "";
+  $("amountDisplay").textContent = "";
+  $("contentInput").value = "";
+  $("categorySelect").value = "";
+  $("dateInput").value = todayString();
+  selectDefaultSpendingType();
+  autoSelectMonthly(todayString());
+}
+
+// ⭐ Ver 3.0 : STEP 2 화면에 잠깐 나타났다가 자동으로 사라지는 안내 메시지
+//    (STEP 3 이 생겨서 더 이상 하단에 에러 메시지가 계속 남아 있지 않습니다)
+function flashStep2Status(message) {
+  const target = $("step2Result");
+  target.innerHTML =
+    '<div class="error">❌ ' + escapeHtml(message) + '</div>';
+  clearTimeout(flashStep2Status._timer);
+  flashStep2Status._timer = setTimeout(function () {
+    target.innerHTML = "";
+  }, 2500);
+}
+
+// ⭐ Ver 3.0 : STEP 3 — 등록 진행 팝업 (배경 위 반투명 컴팩트 카드)
+function showStep3Loading() {
+  $("step3Title").textContent = "📝 노션에 등록 중...";
+  $("step3Title").style.color = "#f9ecc0";
+  $("step3Body").innerHTML =
+    '<div class="listening">🎧 노션 가계부에 등록하고 있어요.<br><br>잠시만 기다려주세요.</div>';
+  $("resultCard").classList.add("step-hidden");
+  $("step3Screen").classList.remove("step-hidden");
+  window.scrollTo(0, 0);
+}
+
+// ⭐ Ver 3.0 : STEP 3 — 등록 완료 카드 (노션 연동 값 + 바로가기 + 새 기록 버튼)
+function showStep3Success(info) {
+  $("step3Title").textContent = "✅ 노션 등록 완료!";
+  $("step3Title").style.color = "#86efac";
+  $("step3Body").innerHTML =
+    '<div class="ok step3-ok-card">' +
+    '· 구분 : ' + escapeHtml(info.kind) + '<br>' +
+    '· 항목 : ' + escapeHtml(info.content) + '<br>' +
+    '· 금액 : ' + formatAmount(info.amount) + '원<br>' +
+    '· 날짜 : ' + escapeHtml(info.date) + '<br>' +
+    '· 지출형태 : ' + escapeHtml(info.spendingType) + '<br>' +
+    '· 월별가계부 : ' + escapeHtml(info.monthlyName) + '<br>' +
+    '· 소분류 : ' + escapeHtml(info.categoryName) +
+    (info.notionUrl
+      ? '<br><br><a href="' + info.notionUrl + '" target="_blank" rel="noopener">📖 노션 페이지 열기</a>'
+      : '') +
+    '</div>' +
+    '<button id="step3NewButton" type="button" class="primary step3-new-btn">🖋️ 새로운 가계부 작성</button>';
+  const newBtn = $("step3NewButton");
+  if (newBtn) {
+    newBtn.addEventListener("click", startNewLedgerFromStep3);
+  }
+  window.scrollTo(0, 0);
+}
+
+// ⭐ Ver 3.0 : STEP 3 — 등록 실패 카드 (돌아가서 다시 시도)
+function showStep3Error(message) {
+  $("step3Title").textContent = "❌ 등록하지 못했어요";
+  $("step3Title").style.color = "#fecaca";
+  $("step3Body").innerHTML =
+    '<div class="error">' + escapeHtml(message) + '</div>' +
+    '<button id="step3RetryButton" type="button" class="primary step3-new-btn">◀ 돌아가서 다시 시도</button>';
+  const retryBtn = $("step3RetryButton");
+  if (retryBtn) {
+    retryBtn.addEventListener("click", backToStep2FromStep3);
+  }
+  window.scrollTo(0, 0);
+}
+
 async function confirmLedger() {
 
   if (isSending) return;
@@ -887,28 +1065,30 @@ async function confirmLedger() {
   const monthlyId = $("monthlySelect").value;
   const categoryId = $("categorySelect").value;
 
-  const target = $("step2Result");
-
+  // ⭐ Ver 3.0 : 입력값 검증 메시지는 STEP 2 하단에 잠깐 보였다가 자동으로 사라집니다.
+  //    (실제 등록 상태는 STEP 3 팝업 카드에서 보여줍니다)
   if (!amount || amount <= 0) {
-    target.innerHTML = '<div class="error">❌ 금액을 입력해주세요.</div>';
+    flashStep2Status("금액을 입력해주세요.");
     return;
   }
   if (!content) {
-    target.innerHTML = '<div class="error">❌ 수입 / 지출 내용을 입력해주세요.</div>';
+    flashStep2Status("수입 / 지출 내용을 입력해주세요.");
     return;
   }
   if (!monthlyId) {
-    target.innerHTML = '<div class="error">❌ 월별가계부를 선택해주세요.</div>';
+    flashStep2Status("월별가계부를 선택해주세요.");
     return;
   }
   if (!categoryId) {
-    target.innerHTML = '<div class="error">❌ 소분류를 선택해주세요.</div>';
+    flashStep2Status("소분류를 선택해주세요.");
     return;
   }
 
   isSending = true;
   $("confirmButton").disabled = true;
-  target.innerHTML = '<div class="listening">📝 노션에 등록하고 있어요...<br><br>잠시만 기다려주세요.</div>';
+
+  // ⭐ STEP 3 진입 : 등록 진행 상태를 팝업 카드로 표시
+  showStep3Loading();
 
   try {
 
@@ -927,32 +1107,25 @@ async function confirmLedger() {
       throw new Error(data.message || "등록에 실패했습니다.");
     }
 
-    target.innerHTML =
-      '<div class="ok">✅ ' + escapeHtml(currentKind) + ' 등록 완료!<br><br>' +
-      '· 항목 : ' + escapeHtml(data.content || content) + '<br>' +
-      '· 금액 : ' + formatAmount(data.amount || amount) + '원<br>' +
-      '· 날짜 : ' + escapeHtml(data.date || dateValue) + '<br>' +
-      '· 지출형태 : ' + escapeHtml(spendingType || "") + '<br>' +
-      '· 월별가계부 : ' + escapeHtml(data.monthlyName || "") + '<br>' +
-      '· 소분류 : ' + escapeHtml(data.categoryName || "") +
-      (data.notionUrl
-        ? '<br><br><a href="' + data.notionUrl + '" target="_blank" rel="noopener">📖 노션에서 보기</a>'
-        : '') +
-      '</div>';
+    // ⭐ STEP 3 : 등록 완료 카드 (노션 연동 값 + 노션 페이지 바로가기 + 새 기록 버튼)
+    showStep3Success({
+      kind: currentKind,
+      content: data.content || content,
+      amount: data.amount || amount,
+      date: data.date || dateValue,
+      spendingType: spendingType,
+      monthlyName: data.monthlyName || "",
+      categoryName: data.categoryName || "",
+      notionUrl: data.notionUrl || ""
+    });
 
-    $("amountInput").value = "";
-    $("amountDisplay").textContent = "";
-    $("contentInput").value = "";
-    $("categorySelect").value = "";
-    $("dateInput").value = todayString();
-    selectDefaultSpendingType();
-    autoSelectMonthly(todayString());
+    // 다음 기록을 위해 STEP 2 입력값 초기화
+    resetStep2Inputs();
 
   } catch (error) {
 
-    target.innerHTML =
-      '<div class="error">❌ 등록하지 못했어요.<br><br>' +
-      escapeHtml(error.message || String(error)) + '</div>';
+    // ⭐ STEP 3 : 등록 실패 카드 (돌아가서 다시 시도)
+    showStep3Error(error.message || String(error));
 
   } finally {
 
@@ -989,6 +1162,17 @@ $("startInputButton").addEventListener("click", async function () {
 $("amountInput").addEventListener("input", refreshAmountDisplay);
 $("amountInput").addEventListener("blur", refreshAmountDisplay);
 
+// ⭐ Ver 3.0 : 어떤 입력칸이라도 값을 바꾸면 이전 상태/오류 메시지를 즉시 정리
+//    (정상 작동 중에 옛날 에러 메시지가 남아 있는 문제 해결)
+["amountInput", "contentInput", "categorySelect", "monthlySelect", "dateInput"].forEach(function (id) {
+  $(id).addEventListener("input", function () {
+    $("step2Result").innerHTML = "";
+  });
+  $(id).addEventListener("change", function () {
+    $("step2Result").innerHTML = "";
+  });
+});
+
 $("amountMicButton").addEventListener("click", startAmountRecognition);
 $("masterRefreshButton").addEventListener("click", refreshMasterDataFromNotion);
 $("confirmButton").addEventListener("click", confirmLedger);
@@ -1007,6 +1191,28 @@ $("dateInput").addEventListener("change", function () {
 $("fbMainButton").addEventListener("click", function () {
   showStep1();
 });
+
+// ---------------------------------------------------------------------------
+// ⭐ Ver 3.0 : STEP 3 팝업 카드 버튼 동작
+// ---------------------------------------------------------------------------
+
+// ❌ 등록 실패 카드 → STEP 2 로 돌아가 다시 시도
+function backToStep2FromStep3() {
+  $("step3Screen").classList.add("step-hidden");
+  $("resultCard").classList.remove("step-hidden");
+  $("step2Result").innerHTML = "";
+  window.scrollTo(0, 0);
+}
+
+// ✅ 등록 완료 카드 → "새로운 가계부 작성" : STEP 1 로 돌아가 새 기록 시작
+function startNewLedgerFromStep3() {
+  $("step3Screen").classList.add("step-hidden");
+  $("topFixedBar").style.display = "none";
+  $("topSpacer").style.height = "0px";
+  $("resultCard").classList.add("step-hidden");
+  $("inputScreen").classList.remove("step-hidden");
+  window.scrollTo(0, 0);
+}
 
 // ② 🔄 새로 고침 : 브라우저 전체 새로고침이 아니라
 //    STEP 2 목록만 다시 불러옵니다 (원본 refreshInitialDataForPreview)
