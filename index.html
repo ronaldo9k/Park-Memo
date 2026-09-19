@@ -19,33 +19,62 @@
     :root{
       --bg:#05070b; --card:rgba(255,255,255,.96); --text:#111827; --muted:#6b7280;
       --line:#e5e7eb; --green:#15803d; --red:#dc2626; --dark:#111827; --gold:#c9a227;
+
+      /* ⭐ 모든 주요 버튼이 "정확히 같은 높이"가 되도록 하는 공용 토큰 */
+      --btn-h:52px;
+      --radius:14px;
     }
 
     html,body{margin:0;padding:0;background:var(--bg);color:var(--text);
       font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",sans-serif;}
 
     /* ======================================================================
-       ⭐ 배경화면 : GitHub 에 올린 kyungwoo.png 를 배경으로 사용
+       ⭐ 배경화면 : GitHub 에 올린 kyungwoo.png
        ====================================================================== */
     body{
-      padding:12px;min-height:100vh;
+      min-height:100vh;
       background-image:url("kyungwoo.png");
       background-size:cover;
-      background-position:center top;
+      background-position:center center;
       background-repeat:no-repeat;
       background-attachment:fixed;
       background-color:#05070b;
     }
-    /* 이미지가 없을 때도 화면이 깨지지 않도록 어두운 딤 처리 */
+    /* 이미지가 없을 때도 화면이 깨지지 않도록 가벼운 딤 처리 */
     body::before{
-      content:"";position:fixed;inset:0;background:rgba(5,7,11,.55);
+      content:"";position:fixed;inset:0;background:rgba(4,6,10,.42);
       z-index:0;pointer-events:none;
     }
 
-    .wrap{max-width:520px;margin:0 auto;position:relative;z-index:1;}
+    /* ======================================================================
+       ⭐ STEP 1 : 화면 정가운데 배치 (flex 중앙 정렬)
+       ====================================================================== */
+    .app-stage{
+      position:relative;z-index:1;
+      min-height:100vh;
+      display:flex;flex-direction:column;
+      align-items:center;justify-content:center;   /* ⭐ 세로 정가운데 */
+      padding:24px 14px;
+    }
+
+    .wrap{width:100%;max-width:520px;position:relative;z-index:1;}
 
     /* ======================================================================
-       ⭐ STEP 2 상단 고정형 버튼 3개 (원본 X Notion 과 100% 동일 구성)
+       ⭐ STEP 1 투명 카드 (배경 이미지가 그대로 비쳐 보임)
+       ====================================================================== */
+    .glass{
+      background:rgba(255,255,255,.13);
+      backdrop-filter:blur(18px) saturate(140%);
+      -webkit-backdrop-filter:blur(18px) saturate(140%);
+      border:1px solid rgba(255,255,255,.24);
+      border-radius:20px;
+      box-shadow:0 20px 55px rgba(0,0,0,.5);
+      padding:26px 20px;
+      margin-bottom:0;
+    }
+
+    /* ======================================================================
+       ⭐ STEP 2 상단 고정형 버튼 3개 (원본 X Notion 과 동일)
        ====================================================================== */
     .top-fixed-bar{
       position:fixed;top:0;left:0;right:0;z-index:50;
@@ -65,36 +94,54 @@
     .top-fixed-bar button:active{background:rgba(255,255,255,.2);}
     .top-fixed-bar button:disabled{opacity:.5;}
 
-    /* 고정바 높이만큼 본문 여백 확보 */
     .top-spacer{height:52px;}
 
+    /* STEP 2 카드 (입력 폼 가독성을 위해 거의 불투명하게 유지) */
     .card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:12px;
       box-shadow:0 10px 30px rgba(0,0,0,.35);}
     .screen{display:block;}
     .step-hidden{display:none!important;}
 
-    .brand{text-align:center;margin:6px 0 14px;}
-    .brand .brand-title{font-size:19px;font-weight:800;letter-spacing:-.4px;color:#fff;}
-    .brand .brand-sub{font-size:12px;color:#9ca3af;margin-top:4px;}
-    .fenomeno-status{font-size:11px;letter-spacing:2px;color:var(--gold);font-weight:700;}
+    .brand{text-align:center;margin:0 0 18px;}
+    .brand .brand-title{font-size:19px;font-weight:800;letter-spacing:-.4px;color:#fff;
+      text-shadow:0 2px 10px rgba(0,0,0,.6);}
+    .brand .brand-sub{font-size:12px;color:#e5e7eb;margin-top:6px;opacity:.85;
+      text-shadow:0 1px 6px rgba(0,0,0,.6);}
 
     h2.section{font-size:15px;margin:0 0 12px;font-weight:800;color:var(--dark);}
+    .glass h2.section{color:#fff;text-shadow:0 2px 8px rgba(0,0,0,.55);}
 
-    /* STEP 1 */
-    .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-    .mode-btn{border:2px solid var(--line);background:#fff;border-radius:14px;padding:16px 8px;
-      font-size:16px;font-weight:800;color:var(--muted);cursor:pointer;transition:.15s;}
-    .mode-btn .mode-icon{display:block;font-size:22px;margin-bottom:6px;}
-    .mode-btn.active[data-mode="지출"]{background:#fef2f2;border-color:var(--red);color:var(--red);}
-    .mode-btn.active[data-mode="수입"]{background:#f0fdf4;border-color:var(--green);color:var(--green);}
+    /* ⭐ 수입 / 지출 버튼 : "가계부 정보 입력하기" 와 높이 100% 동일 */
+    .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
+    .mode-btn{
+      height:var(--btn-h);
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      border:2px solid rgba(255,255,255,.28);
+      background:rgba(255,255,255,.10);
+      border-radius:var(--radius);
+      font-size:16px;font-weight:800;color:#e5e7eb;cursor:pointer;
+      transition:.15s;font-family:inherit;
+    }
+    .mode-btn .mode-icon{font-size:17px;line-height:1;}
+    .mode-btn.active[data-mode="지출"]{background:rgba(220,38,38,.85);border-color:#fecaca;color:#fff;}
+    .mode-btn.active[data-mode="수입"]{background:rgba(21,128,61,.88);border-color:#bbf7d0;color:#fff;}
 
     button{font-family:inherit;}
-    .primary{width:100%;border:none;border-radius:14px;background:var(--dark);color:#fff;
-      padding:16px;font-size:16px;font-weight:800;cursor:pointer;}
+
+    /* ⭐ 메인 버튼 : mode-btn 과 같은 --btn-h 사용 → 높이 완전 동일 */
+    .primary{
+      width:100%;height:var(--btn-h);
+      display:flex;align-items:center;justify-content:center;gap:8px;
+      border:none;border-radius:var(--radius);
+      background:#fff;color:var(--dark);
+      font-size:16px;font-weight:800;cursor:pointer;
+      box-shadow:0 8px 22px rgba(0,0,0,.35);
+    }
+    .primary:active{transform:scale(.985);}
     .primary:disabled{opacity:.5;}
 
-    /* ⭐ 상태바 + 목록 새로고침 한 줄 배치 (원본과 동일) */
-    .step2-status-row{display:flex;gap:8px;align-items:stretch;margin-bottom:14px;}
+    /* ⭐ 상태바 + 목록 새로고침 한 줄 */
+    .step2-status-row{display:flex;gap:8px;align-items:stretch;margin-bottom:6px;}
     .status-bar{flex:1 1 auto;border-radius:12px;padding:11px 13px;font-size:13px;font-weight:700;
       display:flex;align-items:center;gap:8px;line-height:1.35;min-height:46px;}
     .status-bar.loading{background:#fffbeb;color:#92400e;border:1px solid #fde68a;}
@@ -105,10 +152,9 @@
     .status-bar.ready .spinner,.status-bar.error .spinner{display:none;}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* ⭐ 녹색 상태바 오른쪽 옆 목록 새로고침 (작은 크기) */
     .master-refresh-btn{flex:0 0 auto;border:1px solid var(--line);border-radius:12px;background:#fff;
       color:var(--dark);font-size:11.5px;font-weight:800;padding:0 10px;min-height:46px;
-      cursor:pointer;white-space:nowrap;line-height:1.2;}
+      cursor:pointer;white-space:nowrap;line-height:1.2;font-family:inherit;}
     .master-refresh-btn:disabled{opacity:.55;}
 
     label.field{display:block;font-size:13px;font-weight:800;color:var(--dark);margin:16px 0 7px;}
@@ -129,7 +175,8 @@
     .mic-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5;}
 
     .button-group{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;}
-    .button-group button{border:none;border-radius:14px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;}
+    .button-group button{border:none;border-radius:var(--radius);height:var(--btn-h);
+      font-size:15px;font-weight:800;cursor:pointer;}
     .btn-confirm{background:var(--dark);color:#fff;}
     .btn-back{background:#f3f4f6;color:var(--dark);}
     .btn-confirm:disabled{opacity:.5;}
@@ -142,8 +189,12 @@
       padding:14px;font-size:14px;font-weight:700;line-height:1.7;}
     .ok a{color:var(--green);}
     .row-note{font-size:12px;color:var(--muted);margin-top:6px;line-height:1.55;}
-    .divider{height:1px;background:var(--line);margin:18px 0;}
+    .glass .row-note{color:#e5e7eb;text-shadow:0 1px 6px rgba(0,0,0,.6);}
+    .divider{height:1px;background:rgba(255,255,255,.22);margin:18px 0;}
     .amount-display{font-size:13px;color:var(--green);font-weight:800;margin-top:6px;}
+
+    /* ⭐ 로딩 출처 표시 (캐시 / 네트워크) */
+    #loadSourceNote{font-size:12px;font-weight:800;color:var(--green);margin:0 0 12px;min-height:15px;}
   </style>
 </head>
 
@@ -158,53 +209,63 @@
   <button id="fbNotionButton" type="button">📖 노션 열기</button>
 </div>
 
-<div class="wrap">
 
-  <div class="top-spacer"></div>
+<!-- ========================================================================
+     ⭐ STEP 1 : 수입 / 지출 선택 (화면 정가운데 · 투명 카드)
+     ======================================================================== -->
+<div id="stepOne" class="app-stage">
 
-  <!-- ======================================================================
-       STEP 1 : 수입 / 지출 선택
-       ====================================================================== -->
-  <div id="inputScreen" class="card screen">
+  <div class="wrap">
 
-    <div class="brand">
-      <div class="brand-title">성공신화 박희수의 가계부</div>
-      <div class="brand-sub">🎤 음성 · 키보드로 빠르게 기록하기</div>
+    <div class="card glass">
+
+      <div class="brand">
+        <div class="brand-title">성공신화 박희수의 가계부</div>
+        <div class="brand-sub">🎤 음성 · 키보드로 빠르게 기록하기</div>
+      </div>
+
+      <h2 class="section">1. 수입 / 지출 선택</h2>
+
+      <div class="mode-row">
+        <button type="button" class="mode-btn" data-mode="수입">
+          <span class="mode-icon">💰</span>수입
+        </button>
+        <button type="button" class="mode-btn active" data-mode="지출">
+          <span class="mode-icon">💸</span>지출
+        </button>
+      </div>
+
+      <button id="startInputButton" class="primary">📝 가계부 정보 입력하기</button>
+
+      <div class="divider"></div>
+
+      <div id="result" class="row-note"></div>
+
     </div>
-
-    <h2 class="section">1. 수입 / 지출 선택</h2>
-
-    <div class="mode-row">
-      <button type="button" class="mode-btn" data-mode="수입">
-        <span class="mode-icon">💰</span>수입
-      </button>
-      <button type="button" class="mode-btn active" data-mode="지출">
-        <span class="mode-icon">💸</span>지출
-      </button>
-    </div>
-
-    <button id="startInputButton" class="primary">📝 가계부 정보 입력하기</button>
-
-    <div class="divider"></div>
-
-    <div id="result" class="row-note"></div>
 
   </div>
 
+</div>
 
-  <!-- ======================================================================
-       STEP 2 : 가계부 정보 입력
-       ====================================================================== -->
-  <div id="resultCard" class="card screen step-hidden">
+
+<!-- ========================================================================
+     ⭐ STEP 2 : 가계부 정보 입력
+     ======================================================================== -->
+<div id="stepTwo" class="wrap step-hidden">
+
+  <div class="top-spacer"></div>
+
+  <div class="card">
 
     <!-- ⭐ 녹색 상태바 + 오른쪽 목록 새로고침 -->
     <div class="step2-status-row">
       <div id="step2StatusBar" class="status-bar loading">
         <div class="spinner"></div>
-        <span id="step2StatusText">월별가계부 · 소분류 · 지출형태를 준비하는 중...</span>
+        <span id="step2StatusText">목록을 준비하는 중...</span>
       </div>
       <button id="masterRefreshButton" class="master-refresh-btn" type="button">🗂️ 목록 새로고침</button>
     </div>
+    <div id="loadSourceNote"></div>
     <div class="row-note" id="masterRefreshNote"></div>
 
     <h2 class="section" id="step2Title">2. 가계부 정보 입력</h2>
@@ -261,13 +322,12 @@
 // ============================================================================
 
 const GAS_URL =
-  "https://script.google.com/macros/s/AKfycbxxEbqsa-DZHPGrMHV2mqllOim0NbCGU8dWym4XcjK6xD4JlDj4ZKjNtOXci1fx9RbU/exec";
+  "https://script.google.com/macros/s/AKfycbwkpTXrgO9eRvZGXtwbizlSL-3tXxp2XbudLA3c0ZZdR7SdXg7Kxm9xE6m7Xwz2qDt9/exec";
 
 // ⭐ GAS 서버 일시 응답불가 상태 (원본과 동일)
 let GAS_DOWN_UNTIL = 0;
 
 // ⭐ STEP 2 상단 "📖 노션 열기" 버튼이 여는 고정 페이지
-//    (원본 X Notion 의 NOTION_HOME_URL 과 동일한 역할)
 const NOTION_HOME_URL =
   "https://www.notion.so/";
 
@@ -285,8 +345,8 @@ const SpeechRecognition =
 // ⭐ 3. 상태 변수
 // ============================================================================
 
-let currentKind = "지출";      // STEP 1 에서 선택한 수입/지출
-let previewLoaded = false;      // STEP 2 목록 준비 완료 여부
+let currentKind = "지출";
+let previewLoaded = false;
 let isRecording = false;
 let recognition = null;
 let isSending = false;
@@ -295,9 +355,11 @@ let spendingTypeList = [];
 let categoryList = [];
 let monthlyList = [];
 
-// ⭐ STEP 2 목록 localStorage 캐시 (원본의 CLIENT_CACHE 와 동일한 사고방식)
-const OPTIONS_CACHE_KEY = "BUDGET_OPTIONS_CACHE_V2";
-const OPTIONS_CACHE_MAX_AGE = 1000 * 60 * 60 * 24; // 24시간
+// ⭐ STEP 2 목록 저장고 (원본의 CLIENT_CACHE 와 동일한 사고방식)
+//    ⭐⭐⭐ 만료 시간을 두지 않습니다.
+//       이 값들은 1년에 한두 번 바뀌는 고정형 값이라
+//       "🗂️ 목록 새로고침" 을 누를 때만 새로 갱신합니다.
+const OPTIONS_CACHE_KEY = "BUDGET_OPTIONS_CACHE_V3";
 
 // ⭐ 지출형태 기본값
 const DEFAULT_SPENDING_TYPE = "카드";
@@ -346,7 +408,7 @@ function parseAmountInput(value) {
 
 
 // ============================================================================
-// 📡 5. GAS POST 공통 (원본 postToGAS 와 100% 동일한 구조)
+// 📡 5. GAS POST 공통 (원본 postToGAS 와 동일한 구조)
 // ============================================================================
 
 async function postToGAS(payload) {
@@ -407,7 +469,7 @@ async function postToGAS(payload) {
 
 
 // ============================================================================
-// 💾 6. STEP 2 목록 캐시 (localStorage)
+// 💾 6. STEP 2 목록 저장고 (localStorage) — 만료 없음
 // ============================================================================
 
 function readOptionsCache() {
@@ -415,9 +477,9 @@ function readOptionsCache() {
     const raw = localStorage.getItem(OPTIONS_CACHE_KEY);
     if (!raw) return null;
     const saved = JSON.parse(raw);
-    if (!saved || !Array.isArray(saved.spendingTypes)) return null;
-    if (Date.now() - Number(saved.savedAt || 0) > OPTIONS_CACHE_MAX_AGE) return null;
-    return saved;
+    if (!saved) return null;
+    if (!Array.isArray(saved.spendingTypes)) return null;
+    return saved;   // ⭐ 만료 검사 없음 (새로고침 버튼으로만 갱신)
   } catch (error) {
     return null;
   }
@@ -432,8 +494,56 @@ function writeOptionsCache(data) {
       monthlyList: data.monthlyList || []
     }));
   } catch (error) {
-    console.log("목록 캐시 저장 생략:", error);
+    console.log("목록 저장고 저장 생략:", error);
   }
+}
+
+// 저장된 시각을 "n분 전" 처럼 보여주기
+function agoText(ts) {
+  const diff = Date.now() - Number(ts || 0);
+  if (!ts || diff < 0) return "";
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return "방금 전";
+  if (min < 60) return min + "분 전";
+  const hour = Math.floor(min / 60);
+  if (hour < 24) return hour + "시간 전";
+  return Math.floor(hour / 24) + "일 전";
+}
+
+
+// ============================================================================
+// ⭐ 6-1. 로딩 출처 표시 (캐시 vs 네트워크)
+// ============================================================================
+
+function setLoadSourceNote(type, savedAt) {
+
+  const el = $("loadSourceNote");
+  if (!el) return;
+
+  if (type === "cache") {
+
+    el.style.color = "#15803d";
+    el.innerHTML =
+      "⚡ 저장된 목록에서 즉시 불러왔어요 · 노션 조회 0회" +
+      (savedAt ? " (" + agoText(savedAt) + " 저장)" : "");
+
+  } else if (type === "network") {
+
+    el.style.color = "#1d4ed8";
+    el.innerHTML = "🌐 처음 한 번만 노션에서 불러와 저장했어요";
+
+  } else if (type === "refresh") {
+
+    el.style.color = "#b45309";
+    el.innerHTML = "🔄 방금 노션에서 새로 가져와 저장했어요";
+
+  } else {
+
+    el.style.color = "#6b7280";
+    el.innerHTML = "⏳ 노션 목록을 확인하는 중...";
+
+  }
+
 }
 
 
@@ -456,30 +566,7 @@ function fillSelect(selectEl, items, placeholder) {
   });
 }
 
-// ⭐ 지출형태 기본값 "카드" 자동 선택
-function selectDefaultSpendingType() {
-  const sel = $("spendingTypeSelect");
-  if (!sel) return;
-
-  const exact = spendingTypeList.find(function (name) {
-    return String(name) === DEFAULT_SPENDING_TYPE;
-  });
-
-  if (exact) {
-    sel.value = extraSelectValueFind(sel, DEFAULT_SPENDING_TYPE);
-    return;
-  }
-
-  const partial = spendingTypeList.find(function (name) {
-    return String(name).indexOf("카드") >= 0;
-  });
-
-  if (partial) {
-    sel.value = extraSelectValueFind(sel, partial);
-  }
-}
-
-function extraSelectValueFind(selectEl, name) {
+function selectValueByName(selectEl, name) {
   for (let i = 0; i < selectEl.options.length; i++) {
     if (selectEl.options[i].textContent === String(name)) {
       return selectEl.options[i].value;
@@ -488,8 +575,34 @@ function extraSelectValueFind(selectEl, name) {
   return "";
 }
 
-// ⭐ 월별가계부 : 오늘(또는 선택 날짜) 기준으로 자동 선택
+// ⭐ 지출형태 기본값 "카드" 자동 선택
+function selectDefaultSpendingType() {
+
+  const sel = $("spendingTypeSelect");
+  if (!sel) return;
+
+  const exact = spendingTypeList.find(function (name) {
+    return String(name) === DEFAULT_SPENDING_TYPE;
+  });
+
+  if (exact) {
+    sel.value = selectValueByName(sel, DEFAULT_SPENDING_TYPE);
+    return;
+  }
+
+  const partial = spendingTypeList.find(function (name) {
+    return String(name).indexOf("카드") >= 0;
+  });
+
+  if (partial) {
+    sel.value = selectValueByName(sel, partial);
+  }
+
+}
+
+// ⭐ 월별가계부 : 선택 날짜 기준 "YYYYMM" 자동 선택
 function autoSelectMonthly(dateStr) {
+
   const sel = $("monthlySelect");
   if (!sel || !monthlyList.length) return;
 
@@ -509,6 +622,7 @@ function autoSelectMonthly(dateStr) {
       '⚠️ 월별가계부 DB에 <b>' + escapeHtml(key) +
       '</b> 페이지가 없어요. 목록에서 직접 선택하거나 노션에 먼저 만들어주세요.';
   }
+
 }
 
 function applyOptions(data) {
@@ -525,6 +639,7 @@ function applyOptions(data) {
   autoSelectMonthly($("dateInput").value || todayString());
 
   previewLoaded = true;
+
 }
 
 
@@ -533,16 +648,16 @@ function applyOptions(data) {
 // ============================================================================
 
 function showStep2() {
-  $("inputScreen").classList.add("step-hidden");
-  $("resultCard").classList.remove("step-hidden");
+  $("stepOne").classList.add("step-hidden");
+  $("stepTwo").classList.remove("step-hidden");
   $("topFixedBar").style.display = "flex";
   $("step2Title").textContent = "2. " + currentKind + " 정보 입력";
   window.scrollTo(0, 0);
 }
 
 function showStep1() {
-  $("resultCard").classList.add("step-hidden");
-  $("inputScreen").classList.remove("step-hidden");
+  $("stepTwo").classList.add("step-hidden");
+  $("stepOne").classList.remove("step-hidden");
   $("topFixedBar").style.display = "none";
   window.scrollTo(0, 0);
 }
@@ -555,17 +670,46 @@ function setStatusBar(state, text) {
 
 
 // ============================================================================
-// 📋 9. STEP 2 목록 로딩 (캐시 우선 → GAS → 캐시 저장)
+// 📋 9. STEP 2 목록 준비  ★ 초고속 구조
+// ============================================================================
+//
+//  ⭐⭐⭐ 여기가 핵심입니다.
+//
+//   저장된 목록이 있으면 → 노션/서버를 "아예 부르지 않고" 즉시 화면에 채웁니다.
+//                          (네트워크 요청 0회 · 기다림 0초)
+//
+//   저장된 목록이 없을 때만 → 처음 한 번 서버에 요청합니다.
+//                          (서버도 자체 저장고가 있으면 노션을 안 부릅니다)
+//
+//   목록이 추가/변경되었을 때만 → 사용자가 "🗂️ 목록 새로고침" 을 누릅니다.
+//
 // ============================================================================
 
 async function loadPreviewOptions() {
 
-  setStatusBar("loading", "월별가계부 · 소분류 · 지출형태를 준비하는 중...");
+  // --------------------------------------------------------------------------
+  // ① 저장고에 있으면 즉시 사용 — 서버 호출 없음
+  // --------------------------------------------------------------------------
 
   const cached = readOptionsCache();
+
   if (cached) {
+
     applyOptions(cached);
+
+    setStatusBar("ready", "박희수님 정보 입력 가능!");
+    setLoadSourceNote("cache", cached.savedAt);
+
+    return cached;
+
   }
+
+  // --------------------------------------------------------------------------
+  // ② 저장고가 비어 있을 때만 처음 한 번 서버 요청
+  // --------------------------------------------------------------------------
+
+  setStatusBar("loading", "목록을 처음 한 번만 준비하는 중...");
+  setLoadSourceNote("loading");
 
   try {
 
@@ -579,6 +723,7 @@ async function loadPreviewOptions() {
     writeOptionsCache(data);
 
     setStatusBar("ready", "박희수님 정보 입력 가능!");
+    setLoadSourceNote("network");
 
     return data;
 
@@ -587,11 +732,17 @@ async function loadPreviewOptions() {
     console.error("STEP 2 목록 오류:", error);
 
     if (previewLoaded) {
+
       setStatusBar("ready", "저장된 목록으로 입력 가능!");
+      setLoadSourceNote("cache", readOptionsCache() ? readOptionsCache().savedAt : null);
+
     } else {
+
       setStatusBar("error", "목록을 가져오지 못했습니다. 잠시 후 다시 시도해주세요.");
+      setLoadSourceNote("error");
       $("step2Result").innerHTML =
         '<div class="error">❌ ' + escapeHtml(error.message || String(error)) + '</div>';
+
     }
 
     return null;
@@ -602,7 +753,7 @@ async function loadPreviewOptions() {
 
 
 // ============================================================================
-// 🗂️ 10. 목록 새로고침 (원본 refreshMasterDataFromNotion 과 동일)
+// 🗂️ 10. 목록 새로고침 — 이 버튼만 노션을 실제로 조회합니다
 // ============================================================================
 
 async function refreshMasterDataFromNotion() {
@@ -616,6 +767,8 @@ async function refreshMasterDataFromNotion() {
   }
 
   $("masterRefreshNote").textContent = "";
+  setStatusBar("loading", "노션에서 최신 목록을 가져오는 중...");
+  setLoadSourceNote("loading");
 
   try {
 
@@ -628,14 +781,18 @@ async function refreshMasterDataFromNotion() {
     applyOptions(data);
     writeOptionsCache(data);
 
+    setStatusBar("ready", "박희수님 정보 입력 가능!");
+    setLoadSourceNote("refresh");
+
     $("masterRefreshNote").innerHTML =
       '✅ 지출형태 ' + spendingTypeList.length +
       '개 · 월별가계부 ' + monthlyList.length +
       '개 · 소분류 ' + categoryList.length +
-      '개를 노션에서 새로 가져왔어요.';
+      '개를 노션에서 새로 가져와 저장했어요.';
 
   } catch (error) {
 
+    setLoadSourceNote("error");
     $("masterRefreshNote").innerHTML =
       '<span style="color:#dc2626">❌ ' +
       escapeHtml(error.message || String(error)) + '</span>';
@@ -656,14 +813,13 @@ async function refreshMasterDataFromNotion() {
 // 🎤 11. 금액 음성인식 (한국어 숫자 → 숫자 변환)
 // ============================================================================
 
-// "육천원" / "6천원" / "1만2천원" 등 → 12000
+// "육천원" / "6천원" / "1만2천원" 등 → 숫자
 function koreanAmountToNumber(text) {
 
   let s = String(text || "")
     .replace(/\s+/g, "")
     .replace(/원|₩|\$|,/g, "");
 
-  // 아라비아 숫자 + 만/천/백 단위 (예: 1만2천, 6천)
   const unitMap = { "만": 10000, "천": 1000, "백": 100, "십": 10 };
   let total = 0;
   let matched = false;
@@ -679,7 +835,6 @@ function koreanAmountToNumber(text) {
 
   if (matched && total > 0) return Math.round(total);
 
-  // 순수 한글 숫자 (예: 육천, 삼만오천)
   const kor = { "영":0,"공":0,"일":1,"이":2,"삼":3,"사":4,"오":5,"육":6,"칠":7,"팔":8,"구":9 };
   const big = { "십":10, "백":100, "천":1000, "만":10000 };
   let section = 0, current = 0, hangulFound = false;
@@ -717,8 +872,7 @@ function refreshAmountDisplay() {
 
   if (raw > 0) {
     $("amountInput").value = formatAmount(raw);
-    $("amountDisplay").textContent =
-      "→ " + formatAmount(raw) + "원";
+    $("amountDisplay").textContent = "→ " + formatAmount(raw) + "원";
   } else {
     $("amountDisplay").textContent = "";
   }
@@ -935,21 +1089,20 @@ $("dateInput").addEventListener("change", function () {
 });
 
 // ---------------------------------------------------------------------------
-// ⭐ STEP 2 상단 고정 버튼 3개 (원본 X Notion 과 100% 동일한 기능)
+// ⭐ STEP 2 상단 고정 버튼 3개 (원본 X Notion 과 동일한 기능)
 // ---------------------------------------------------------------------------
 
-// ① ← 메인 화면 : STEP 1 으로 돌아가 새 기록 시작 (원본 resetForNewRecording)
+// ① ← 메인 화면
 $("fbMainButton").addEventListener("click", function () {
   showStep1();
 });
 
-// ② 🔄 새로 고침 : 브라우저 전체 새로고침이 아니라
-//    STEP 2 목록만 다시 불러옵니다 (원본 refreshInitialDataForPreview)
+// ② 🔄 새로 고침 : 저장된 목록으로 STEP 2 를 즉시 다시 채웁니다 (노션 조회 없음)
 $("fbRefreshButton").addEventListener("click", async function () {
   const btn = $("fbRefreshButton");
   const label = btn.textContent;
   btn.disabled = true;
-  btn.textContent = "⏳ 불러오는 중";
+  btn.textContent = "⏳";
   try {
     await loadPreviewOptions();
   } finally {
@@ -958,15 +1111,16 @@ $("fbRefreshButton").addEventListener("click", async function () {
   }
 });
 
-// ③ 📖 노션 열기 : 고정 페이지를 새 탭으로 (원본 previewNotionHomeButton)
+// ③ 📖 노션 열기 : 고정 페이지를 새 탭으로
 $("fbNotionButton").addEventListener("click", function () {
   window.open(NOTION_HOME_URL, "_blank");
 });
 
 
 // ============================================================================
-// 🏁 14. 시작 (STEP 1 은 즉시 뜨고, 서버 조회는 STEP 2 에서만 — 원본과 동일)
+// 🏁 14. 시작
 // ============================================================================
+//  ⭐ STEP 1 은 즉시 뜨고, 서버 조회는 저장고가 비었을 때만 일어납니다.
 
 if (!SpeechRecognition) {
   $("micHint").innerHTML =
@@ -976,9 +1130,20 @@ if (!SpeechRecognition) {
 
 $("dateInput").value = todayString();
 
+// ⭐ 저장고에 목록이 있으면 미리 채워 둡니다.
+//    → STEP 2 로 넘어가는 순간 "기다림 0초" 로 바로 입력 가능
+(function prewarmOptionsCache() {
+  const cached = readOptionsCache();
+  if (cached) {
+    applyOptions(cached);
+    setStatusBar("ready", "박희수님 정보 입력 가능!");
+    setLoadSourceNote("cache", cached.savedAt);
+    console.log("⚡ 저장된 목록으로 미리 준비 완료 (노션 조회 0회)");
+  }
+})();
+
 console.log("✅ 가계부 앱 준비 완료 (STEP 1 즉시 시작)");
 </script>
 
-<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
