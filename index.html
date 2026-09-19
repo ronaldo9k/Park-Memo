@@ -36,13 +36,22 @@
       background-attachment:fixed;
       background-color:#05070b;
     }
-    /* 이미지가 없을 때도 화면이 깨지지 않도록 어두운 딤 처리 */
+    /* ⭐ 수정 ① : 딤 처리를 .55 → .25 로 가볍게 해서 배경 이미지가 최대한 보이게
+       (이미지가 없을 때도 최소한의 어둡게 처리는 유지) */
     body::before{
-      content:"";position:fixed;inset:0;background:rgba(5,7,11,.55);
+      content:"";position:fixed;inset:0;background:rgba(5,7,11,.25);
       z-index:0;pointer-events:none;
     }
 
-    .wrap{max-width:520px;margin:0 auto;position:relative;z-index:1;}
+    /* ⭐ 수정 ② : 첫 화면 세로 정중앙 정렬 (flex + min-height)
+       - 보이는 .card.screen 이 margin:auto 로 남은 세로 공간을 균등 분배 → 정중앙
+       - 내용이 화면보다 길면(STEP 2 폼) auto margin 이 0 이 되어
+         상단이 잘리지 않고 위부터 정상 출력됨 */
+    .wrap{max-width:520px;margin:0 auto;position:relative;z-index:1;
+      min-height:calc(100vh - 24px);display:flex;flex-direction:column;}
+
+    /* ⭐ 수정 ② : 세로 중앙 정렬용 */
+    .card.screen{margin:auto 0;width:100%;}
 
     /* ======================================================================
        ⭐ STEP 2 상단 고정형 버튼 3개 (원본 X Notion 과 100% 동일 구성)
@@ -65,8 +74,9 @@
     .top-fixed-bar button:active{background:rgba(255,255,255,.2);}
     .top-fixed-bar button:disabled{opacity:.5;}
 
-    /* 고정바 높이만큼 본문 여백 확보 */
-    .top-spacer{height:52px;}
+    /* ⭐ 수정 ② : 기본 높이 0 (첫 화면은 중앙 정렬)
+       STEP 2 진입 시 JS 가 52px 로 올려서 고정바 밑으로 내용이 안 가려지게 함 */
+    .top-spacer{height:0;flex:0 0 auto;}
 
     .card{background:var(--card);border-radius:16px;padding:18px;margin-bottom:12px;
       box-shadow:0 10px 30px rgba(0,0,0,.35);}
@@ -80,17 +90,70 @@
 
     h2.section{font-size:15px;margin:0 0 12px;font-weight:800;color:var(--dark);}
 
+    /* ======================================================================
+       ⭐ 수정 ① NEW : STEP 1 (첫 화면) 유리 카드
+          - 흰색 불투명 카드(.96) 대신 반투명 다크글래스 + blur 로 변경
+          - kyungwoo.png 배경이 카드에 비치면서도, 글자는 그림자로 가독성 확보
+       ====================================================================== */
+    #inputScreen{
+      background:rgba(8,12,20,.42);
+      -webkit-backdrop-filter:blur(14px) saturate(1.25);
+      backdrop-filter:blur(14px) saturate(1.25);
+      border:1px solid rgba(255,255,255,.35);
+      box-shadow:0 18px 44px rgba(0,0,0,.45);
+      color:#f9fafb;
+    }
+    /* 골드 그라데이션 타이틀 (흰색 대신 고급스러운 색감) */
+    #inputScreen .brand-title{
+      font-size:22px;font-weight:900;letter-spacing:-.5px;
+      background:linear-gradient(100deg,#f9ecc0 0%,#e7c65f 45%,#c9a227 100%);
+      -webkit-background-clip:text;background-clip:text;
+      -webkit-text-fill-color:transparent;color:transparent;
+      filter:drop-shadow(0 2px 6px rgba(0,0,0,.6));
+    }
+    #inputScreen .brand-sub{
+      color:rgba(255,255,255,.85);
+      text-shadow:0 1px 4px rgba(0,0,0,.65);
+      letter-spacing:.2px;
+    }
+    #inputScreen h2.section{
+      color:rgba(255,255,255,.92);
+      text-shadow:0 1px 4px rgba(0,0,0,.6);
+    }
+    #inputScreen .divider{background:rgba(255,255,255,.28);}
+    #inputScreen .row-note{
+      color:rgba(255,255,255,.88);
+      text-shadow:0 1px 3px rgba(0,0,0,.55);
+    }
+
     /* STEP 1 */
     .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
-    .mode-btn{border:2px solid var(--line);background:#fff;border-radius:14px;padding:16px 8px;
-      font-size:16px;font-weight:800;color:var(--muted);cursor:pointer;transition:.15s;}
-    .mode-btn .mode-icon{display:block;font-size:22px;margin-bottom:6px;}
-    .mode-btn.active[data-mode="지출"]{background:#fef2f2;border-color:var(--red);color:var(--red);}
-    .mode-btn.active[data-mode="수입"]{background:#f0fdf4;border-color:var(--green);color:var(--green);}
+    /* ⭐ 수정 ③ : 수입/지출 버튼
+       - "가계부 정보 입력하기" 버튼과 동일한 높이 규격 (padding 16px · font-size 16px)
+       - 아이콘을 옆으로 붙여 한 줄 배치 → 버튼 높이를 입력하기 버튼과 똑같이
+       - 반투명 글래스 + 흰 테두리로 배경 이미지가 비치게 하되 글자는 그림자로 확실히 보임
+       - (만약 수입/지출을 입력하기 버튼처럼 세로로 쌓고 싶으면
+          아래 grid-template-columns 를 "1fr" 로만 바꾸면 됨) */
+    .mode-btn{
+      border:2px solid rgba(255,255,255,.5);
+      background:rgba(255,255,255,.10);
+      -webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);
+      border-radius:14px;padding:16px 8px;
+      font-size:16px;font-weight:800;color:#fff;cursor:pointer;transition:.15s;
+      text-shadow:0 1px 4px rgba(0,0,0,.55);
+    }
+    .mode-btn .mode-icon{display:inline;font-size:17px;margin-right:6px;}
+    .mode-btn.active[data-mode="지출"]{background:rgba(220,38,38,.32);border-color:#fca5a5;color:#fff;}
+    .mode-btn.active[data-mode="수입"]{background:rgba(21,128,61,.35);border-color:#86efac;color:#fff;}
 
     button{font-family:inherit;}
-    .primary{width:100%;border:none;border-radius:14px;background:var(--dark);color:#fff;
-      padding:16px;font-size:16px;font-weight:800;cursor:pointer;}
+    /* ⭐ 수정 ① : "가계부 정보 입력하기" 버튼 — 골드 그라데이션으로 시선 강화 */
+    .primary{
+      width:100%;border:1px solid rgba(255,255,255,.55);border-radius:14px;
+      background:linear-gradient(100deg,#e7c65f,#c9a227);color:#191203;
+      padding:16px;font-size:16px;font-weight:900;letter-spacing:-.2px;cursor:pointer;
+      box-shadow:0 10px 26px rgba(0,0,0,.4);
+    }
     .primary:disabled{opacity:.5;}
 
     /* ⭐ 상태바 + 목록 새로고침 한 줄 배치 (원본과 동일) */
@@ -160,7 +223,7 @@
 
 <div class="wrap">
 
-  <div class="top-spacer"></div>
+  <div class="top-spacer" id="topSpacer"></div>
 
   <!-- ======================================================================
        STEP 1 : 수입 / 지출 선택
@@ -536,6 +599,7 @@ function showStep2() {
   $("inputScreen").classList.add("step-hidden");
   $("resultCard").classList.remove("step-hidden");
   $("topFixedBar").style.display = "flex";
+  $("topSpacer").style.height = "52px";   // ⭐ 고정바 높이만큼 여백 복원
   $("step2Title").textContent = "2. " + currentKind + " 정보 입력";
   window.scrollTo(0, 0);
 }
@@ -544,6 +608,7 @@ function showStep1() {
   $("resultCard").classList.add("step-hidden");
   $("inputScreen").classList.remove("step-hidden");
   $("topFixedBar").style.display = "none";
+  $("topSpacer").style.height = "0px";    // ⭐ 첫 화면은 세로 정중앙 정렬
   window.scrollTo(0, 0);
 }
 
@@ -979,6 +1044,7 @@ $("dateInput").value = todayString();
 console.log("✅ 가계부 앱 준비 완료 (STEP 1 즉시 시작)");
 </script>
 
+<script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 <script type="module" src="https://static.cloudflareinsights.com/beacon.min.js/v31edd6df95cf4e85bb4c19e7a9bdbcba1788362987495" integrity="sha512-iIg7k2xntmwu6/uSb5tpc/hySgZc4eoL31yB29W6tJFo2akwjPWcEqnCEdJvGexCL0KEQwVYv5BlowfhVz26hg==" data-cf-beacon='{"version":"2024.11.0","token":"4edd5f8ec12a48cfa682ab8261b80a79","spa":2}' crossorigin="anonymous"></script>
 </body>
 </html>
