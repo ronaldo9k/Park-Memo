@@ -242,6 +242,17 @@
     .divider{height:1px;background:var(--line);margin:18px 0;}
     .amount-display{font-size:13px;color:var(--green);font-weight:800;margin-top:6px;}
 
+    /* ⭐ 요청사항 ① : 음성인식 결과 오른쪽 X 버튼 */
+    .mic-result-row{display:flex;gap:8px;align-items:stretch;margin-top:6px;}
+    .mic-result-row .mic-hint{flex:1;margin-top:0;}
+    .clear-amount-btn{
+      flex:0 0 42px;border:1px solid var(--line);border-radius:12px;
+      background:#fff;color:#6b7280;font-size:20px;font-weight:800;
+      cursor:pointer;display:flex;align-items:center;justify-content:center;
+      line-height:1;
+    }
+    .clear-amount-btn:active{background:#f3f4f6;}
+
     /* ======================================================================
        ⭐ Ver 3.0 STEP 3 : 등록 상태 팝업 카드
           - 배경 이미지가 최대한 보이도록 반투명 글래스 처리
@@ -344,9 +355,11 @@
       <input id="amountInput" type="text" inputmode="numeric" placeholder="예) 6,000" autocomplete="off">
       <button id="amountMicButton" class="mic-btn" type="button" title="금액 음성입력">🎤</button>
     </div>
-    <div class="amount-display" id="amountDisplay"></div>
-    <div class="mic-hint" id="micHint">
-      🎤 를 누르고 "육천원" 처럼 금액을 말해보세요.
+    <div class="mic-result-row">
+      <div class="mic-hint" id="micHint">
+        🎤 를 누르고 "육천원" 처럼 금액을 말해보세요.
+      </div>
+      <button id="clearAmountButton" class="clear-amount-btn" type="button" title="인식 결과와 금액 지우기" aria-label="인식 결과와 금액 지우기">✕</button>
     </div>
 
     <!-- 내용 -->
@@ -671,7 +684,41 @@ function applyOptions(data) {
 // 🚀 8. STEP 1 ↔ STEP 2 화면 전환
 // ============================================================================
 
+// ⭐ 요청사항 ② : STEP 2에서 새 기록을 시작할 때 임시 입력/상태를 모두 초기화
+function resetStep2TemporaryState() {
+  // 음성인식이 진행 중이면 먼저 중지
+  if (recognition && isRecording) {
+    try {
+      recognition.stop();
+    } catch (error) {
+      console.log("음성인식 종료 생략:", error);
+    }
+  }
+
+  isRecording = false;
+
+  if ($("amountMicButton")) {
+    $("amountMicButton").classList.remove("rec");
+  }
+
+  // 금액 입력값 + 음성인식 결과 표시를 모두 초기화
+  if ($("amountInput")) $("amountInput").value = "";
+  if ($("amountDisplay")) $("amountDisplay").textContent = "";
+
+  // 음성인식 안내/결과/오류 메시지를 처음 상태로 복원
+  if ($("micHint")) {
+    $("micHint").innerHTML = '🎤 를 누르고 "육천원" 처럼 금액을 말해보세요.';
+  }
+
+  // STEP 2 하단 상태 메시지도 초기화
+  if ($("step2Result")) $("step2Result").innerHTML = "";
+  if ($("masterRefreshNote")) $("masterRefreshNote").textContent = "";
+}
+
 function showStep2() {
+  // ⭐ 요청사항 ② : STEP 2에 새로 들어올 때 금액/음성인식/상태 메시지를 항상 초기화
+  resetStep2TemporaryState();
+
   $("inputScreen").classList.add("step-hidden");
   $("resultCard").classList.remove("step-hidden");
   $("step2Result").innerHTML = "";   // ⭐ Ver 3.0 : STEP 2 들어올 때 이전 안내/에러 메시지 깨끗이 정리
@@ -682,6 +729,9 @@ function showStep2() {
 }
 
 function showStep1() {
+  // ⭐ 요청사항 ② : STEP 2를 떠날 때도 금액/음성인식/상태 메시지를 초기화
+  resetStep2TemporaryState();
+
   $("resultCard").classList.add("step-hidden");
   $("inputScreen").classList.remove("step-hidden");
   $("topFixedBar").style.display = "none";
@@ -993,6 +1043,9 @@ function startAmountRecognition() {
 function resetStep2Inputs() {
   $("amountInput").value = "";
   $("amountDisplay").textContent = "";
+  $("micHint").innerHTML = '🎤 를 누르고 "육천원" 처럼 금액을 말해보세요.';
+  $("step2Result").innerHTML = "";
+  $("masterRefreshNote").textContent = "";
   $("contentInput").value = "";
   $("categorySelect").value = "";
   $("dateInput").value = todayString();
@@ -1171,6 +1224,12 @@ $("startInputButton").addEventListener("click", async function () {
 $("amountInput").addEventListener("input", refreshAmountDisplay);
 $("amountInput").addEventListener("blur", refreshAmountDisplay);
 
+// ⭐ 요청사항 ① : X 버튼을 누르면 음성인식 결과 + 금액 입력값을 즉시 삭제
+$("clearAmountButton").addEventListener("click", function () {
+  resetStep2TemporaryState();
+  $("amountInput").focus();
+});
+
 // ⭐ Ver 3.0 : 어떤 입력칸이라도 값을 바꾸면 이전 상태/오류 메시지를 즉시 정리
 //    (정상 작동 중에 옛날 에러 메시지가 남아 있는 문제 해결)
 ["amountInput", "contentInput", "categorySelect", "monthlySelect", "dateInput"].forEach(function (id) {
@@ -1230,6 +1289,10 @@ $("fbRefreshButton").addEventListener("click", async function () {
   const label = btn.textContent;
   btn.disabled = true;
   btn.textContent = "⏳ 불러오는 중";
+
+  // ⭐ 요청사항 ② : 상단 "새로 고침"을 누르면 금액/음성인식/상태 메시지도 함께 초기화
+  resetStep2TemporaryState();
+
   try {
     await loadPreviewOptions();
   } finally {
@@ -1255,6 +1318,14 @@ if (!SpeechRecognition) {
 }
 
 $("dateInput").value = todayString();
+
+// ⭐ 요청사항 ② : 브라우저가 이전 화면을 복원(bfcache)하는 경우에도
+// STEP 2의 금액/음성인식/상태 메시지가 다시 살아나지 않도록 초기화
+window.addEventListener("pageshow", function (event) {
+  if (event.persisted) {
+    resetStep2TemporaryState();
+  }
+});
 
 console.log("✅ 가계부 앱 준비 완료 (STEP 1 즉시 시작)");
 </script>
