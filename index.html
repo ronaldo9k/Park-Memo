@@ -980,15 +980,33 @@ function startAmountRecognition() {
     $("micHint").innerHTML = "🎤 듣고 있어요... 금액을 말해주세요.";
   };
 
-  recognition.onresult = function (event) {
+    recognition.onresult = function (event) {
     let interim = "";
-    for (let i = event.resultIndex; i < event.results.length; i++) {
+    let allFinal = "";
+
+    for (let i = 0; i < event.results.length; i++) {
       const t = event.results[i][0].transcript;
-      if (event.results[i].isFinal) finalText += t;
-      else interim += t;
+
+      if (event.results[i].isFinal) {
+        allFinal += t;
+      } else {
+        interim += t;
+      }
     }
+
+    if (allFinal) {
+      finalText = allFinal;
+    }
+
     const shown = finalText || interim;
-    $("micHint").innerHTML = "🎤 인식중: <b>" + escapeHtml(shown) + "</b>";
+
+    if (shown.trim()) {
+      $("micHint").innerHTML =
+        "🎤 인식중: <b>" + escapeHtml(shown.trim()) + "</b>";
+    } else {
+      $("micHint").innerHTML =
+        "🎤 인식중: <b>말씀하신 내용을 듣고 있어요...</b>";
+    }
   };
 
   recognition.onerror = function (event) {
