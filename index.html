@@ -309,7 +309,7 @@
 
     <div class="brand">
       <div class="brand-title">성공신화 박희수의 가계부</div>
-      <div class="brand-sub">🎤 음성 · 키보드로 빠르게 기록하기</div>
+      <div class="brand-sub">♡ 김경우 ♡ 박희수 ♡ 김준모 ♡ 김준석 ♡</div>
     </div>
 
     <h2 class="section">1. 수입 / 지출 선택</h2>
@@ -980,7 +980,7 @@ function startAmountRecognition() {
     $("micHint").innerHTML = "🎤 듣고 있어요... 금액을 말해주세요.";
   };
 
-    recognition.onresult = function (event) {
+      recognition.onresult = function (event) {
     let interim = "";
     let allFinal = "";
 
@@ -998,11 +998,20 @@ function startAmountRecognition() {
       finalText = allFinal;
     }
 
-    const shown = finalText || interim;
+    const shown = (finalText + interim).trim();
 
-    if (shown.trim()) {
+    if (shown) {
+      const amount = koreanAmountToNumber(shown);
+
       $("micHint").innerHTML =
-        "🎤 인식중: <b>" + escapeHtml(shown.trim()) + "</b>";
+        "🎤 인식중: <b>" +
+        escapeHtml(shown) +
+        "</b>" +
+        (amount > 0
+          ? ' <span style="color:#16a34a; font-weight:700;">→ 인식결과: ' +
+            formatAmount(amount) +
+            '원</span>'
+          : "");
     } else {
       $("micHint").innerHTML =
         "🎤 인식중: <b>말씀하신 내용을 듣고 있어요...</b>";
